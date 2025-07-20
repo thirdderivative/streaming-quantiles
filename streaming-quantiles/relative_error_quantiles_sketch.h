@@ -9,10 +9,6 @@
 #include <map>
 #include <vector>
 
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/string.hpp>
-#include <cereal/types/vector.hpp>
-
 #include "compactor.h"
 
 struct RelativeErrorQuantilesSketchOptions {
@@ -142,10 +138,6 @@ public:
     std::for_each(
         compactors_.begin(), compactors_.end(),
         [](const Compactor<T> &compactor) -> void { compactor.Print(); });
-  }
-
-  template <class Archive> void serialize(Archive &ar) {
-    ar(H_, compactors_, options_);
   }
 
 private:

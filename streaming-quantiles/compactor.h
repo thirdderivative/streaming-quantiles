@@ -37,20 +37,26 @@ template <typename T> struct Compactor {
   std::vector<T> Insert(const T &element) {
     std::vector<T> output;
     if (buffer.size() == max_buffer_size) {
-      int sections_to_compact = std::countr_one<uint64_t>(C) + 1;
+      int sections_to_compact = 0;
+      uint64_t c = C;
+      while ((c & 1) == 1) {
+        sections_to_compact++;
+        c >>= 1;
+      }
+      sections_to_compact++;
       const uint64_t elements_to_compact = sections_to_compact * k;
 
       // Put the largest elements to compact at the back of the buffer by
       // figuring out where to pivot the buffer. See example at
       // https://en.cppreference.com/w/cpp/algorithm/partial_sort.html
-      const uint64_t S = max_buffer_size - elements_to_compact + 1;
+      const uint64_t S = max_buffer_size - elements_to_compact;
       std::partial_sort(buffer.rbegin(), buffer.rbegin() + S, buffer.rend(),
                         std::greater{});
 
       // Take even or odd indexes for compacted sections to add to the output
       // for pushing to the next compactor, then drop the compacted sections.
       bool even = RandomBoolean();
-      uint64_t i = S - 1;
+      uint64_t i = S;
       if (!even && i % 2 == 0) {
         ++i;
       }

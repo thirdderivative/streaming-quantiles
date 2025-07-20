@@ -11,10 +11,6 @@
 #include <random>
 #include <vector>
 
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/string.hpp>
-#include <cereal/types/vector.hpp>
-
 #include "relative_error_quantiles_sketch.h"
 
 #define Type std::string
@@ -61,23 +57,5 @@ int main(int argc, char **argv) {
   }
   fmt::print("Inserted {} keys\n", options.n);
   sketch.Close();
-
-  const int numQuantiles = 1000;
-  auto quantiles = sketch.Quantiles(numQuantiles);
-  double error = 0.0;
-  for (const auto &q : quantiles) {
-    // TODO(tjackson): Modify EstimateRank() to get the weight for a quantile
-    // then measure error as (weight - quantile fraction).
-    const double e = q.cumulative_weight -
-                     ((static_cast<double>(q.quantile) / numQuantiles) *
-                      sketch.TotalWeight());
-    fmt::print("Quantile {} at item {} with cumulative weight {} total weight "
-               "{} error {}\n",
-               q.quantile, q.item, q.cumulative_weight, sketch.TotalWeight(),
-               e);
-    error += std::pow(e, 2);
-  }
-  double rmse = std::sqrt(error / numQuantiles);
-  fmt::print("RMSE: {}\n", rmse);
   return 0;
 }
