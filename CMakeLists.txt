@@ -40,3 +40,13 @@ target_link_libraries(
 include(GoogleTest)
 gtest_discover_tests(compactor_test)
 
+add_executable(
+  relative_error_quantiles_sketch_test
+  relative_error_quantiles_sketch_test.cpp
+)
+target_link_libraries(
+  relative_error_quantiles_sketch_test
+  GTest::gtest_main
+  fmt::fmt
+)
+gtest_discover_tests(relative_error_quantiles_sketch_test)

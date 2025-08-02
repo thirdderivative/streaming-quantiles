@@ -1,1 +1,19 @@
 build/
+/CMakeFiles/
+/_deps/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+
+# Binaries
+*.out
+*.exe
+*.so
+*.a
+*.dll
+
+# Test results
+*.xml
+*.log
+Testing/
+CTestTestfile.cmake
