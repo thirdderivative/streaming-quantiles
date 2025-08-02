@@ -58,7 +58,6 @@ public:
       std::transform(compactor.buffer.begin(), compactor.buffer.end(),
                      std::back_inserter(weighted_elements_),
                      [weight](const T &t) -> WeightedElement {
-                       assert(!t.empty());
                        return WeightedElement{.item = t, .weight = weight};
                      });
       ++h;
@@ -110,6 +109,9 @@ public:
     double current_total_weight = 0.0;
     int index = 0;
     for (const auto &element : weighted_elements_) {
+      if (current_quantile >= n) {
+        break;
+      }
       current_total_weight += element.weight;
       if (current_total_weight / total_weight_ >=
           static_cast<double>(current_quantile) / n) {

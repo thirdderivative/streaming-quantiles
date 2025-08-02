@@ -10,9 +10,7 @@
 #include <vector>
 
 bool RandomBoolean() {
-  static std::mt19937 generator;
-  static std::random_device rd;
-  generator.seed(rd());
+  static thread_local std::mt19937 generator(std::random_device{}());
   std::bernoulli_distribution distribution(0.5);
   return distribution(generator);
 }
@@ -44,14 +42,14 @@ template <typename T> struct Compactor {
         c >>= 1;
       }
       sections_to_compact++;
-      const uint64_t elements_to_compact = sections_to_compact * k;
+      const uint64_t elements_to_compact =
+          std::min(sections_to_compact * k, max_buffer_size);
 
       // Put the largest elements to compact at the back of the buffer by
       // figuring out where to pivot the buffer. See example at
       // https://en.cppreference.com/w/cpp/algorithm/partial_sort.html
       const uint64_t S = max_buffer_size - elements_to_compact;
-      std::partial_sort(buffer.rbegin(), buffer.rbegin() + S, buffer.rend(),
-                        std::greater{});
+      std::partial_sort(buffer.begin(), buffer.begin() + S, buffer.end());
 
       // Take even or odd indexes for compacted sections to add to the output
       // for pushing to the next compactor, then drop the compacted sections.
@@ -72,9 +70,7 @@ template <typename T> struct Compactor {
       // Resize the vector down so that we don't have extra memory growth.
       // Post "compaction" we should have max_buffer_size/2 elements in the
       // buffer and it should start growing again.
-      buffer.shrink_to_fit();
       assert(buffer.size() == target_capacity);
-      assert(buffer.capacity() == target_capacity);
 
       // Update the compactor schedule so we can "randomly" choose new
       // sections next time.
